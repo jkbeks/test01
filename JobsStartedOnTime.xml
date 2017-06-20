@@ -1,0 +1,69 @@
+﻿<UltimoChart Name="JobsStartedOnTime" xmlns="urn:Ultimo.Framework.UltimoChart-mapping">
+	<Properties xmlns="urn:Ultimo.Framework.UltimoDataSet-mapping">
+		<Property Name="JobScheduledStartDatePeriod" Accessor="Optional" Type="RelativeDate" Default="m-12,i"/>
+		<Property Name="JobContexts" Accessor="Optional" Type="List[Context]" Default="JobContext.TD"/>
+		<Property Name="GroupPeriod" Accessor="Optional" Type="GroupPartType" Default="YearMonth"/>
+		<Property Name="ChartType" Accessor="Optional" Type="SerieType" Default="GroupedColumn"/>
+	</Properties>
+	<ChartSettings>
+		<SerieType Value="${ChartType}"/>
+	</ChartSettings>
+	<AxesSettings>
+		<Axis>
+			<Title>
+				<String Language="NL" Value="Maand"/>
+			</Title>
+			<Type Value="Category"/>
+			<LabelRotation Value="-45"/>
+			<MaxValue Value="0"/>
+		</Axis>
+		<Axis>
+			<Title>
+				<String Language="NL" Value="Aantal"/>
+			</Title>
+			<Type Value="Numeric"/>
+			<LabelRotation Value="0"/>
+			<Grid Value="true"/>
+		</Axis>
+	</AxesSettings>
+	<ViewSeries>
+		<Union OrderBy="Description" OrderDirection="Ascending">
+			<ViewSerie EntityName="Job">
+				<Filters xmlns="urn:Ultimo.Framework.UltimoDataSet-mapping">
+					<CombinedFilter FilterOperator="And">
+						<PropertyFilter PropertyName="Context" Operator="In" PropertyValue="${JobContexts}"/>
+						<BetweenFilter PropertyName="ScheduledStartDate" LowValue="${JobScheduledStartDatePeriod.DateFrom}" HighValue="${JobScheduledStartDatePeriod.DateTill}"/>
+						<PropertyDifferenceFilter LeftPropertyName="ScheduledStartDate" Operator="SmallerThanOrEquals" RightPropertyName="StatusActiveDate" Value="0"/>
+					</CombinedFilter>
+				</Filters>				
+				<ViewSerieSettings>
+					<Part>
+						<String Language="NL" Value="Jobs op tijd gestart"/>
+					</Part>
+				</ViewSerieSettings>
+				<ViewSerieDisplayProperties>
+					<Count Name="Id" BarPart="Value"/>
+					<GroupDateProperty Name="ScheduledStartDate" OrderLevel="1" OrderBy="Ascending" BarPart="Description" GroupPart="${GroupPeriod}"/>
+				</ViewSerieDisplayProperties>
+			</ViewSerie>
+			<ViewSerie EntityName="Job">
+				<Filters xmlns="urn:Ultimo.Framework.UltimoDataSet-mapping">
+					<CombinedFilter FilterOperator="And">
+						<PropertyFilter PropertyName="Context" Operator="In" PropertyValue="${JobContexts}"/>
+						<BetweenFilter PropertyName="ScheduledStartDate" LowValue="${JobScheduledStartDatePeriod.DateFrom}" HighValue="${JobScheduledStartDatePeriod.DateTill}"/>
+						<PropertyDifferenceFilter LeftPropertyName="ScheduledStartDate" RightPropertyName="StatusActiveDate" Value="0" Operator="GreaterThan"/>
+					</CombinedFilter> 
+				</Filters>				
+				<ViewSerieSettings>
+					<Part>
+						<String Language="NL" Value="Jobs niet op tijd gestart"/>
+					</Part>
+				</ViewSerieSettings>
+				<ViewSerieDisplayProperties>
+					<Count Name="Id" BarPart="Value"/>
+					<GroupDateProperty Name="ScheduledStartDate" OrderLevel="1" OrderBy="Ascending" BarPart="Description" GroupPart="${GroupPeriod}"/>
+				</ViewSerieDisplayProperties>
+			</ViewSerie>
+		</Union>
+	</ViewSeries>
+</UltimoChart>
